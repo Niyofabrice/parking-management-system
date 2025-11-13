@@ -1,13 +1,13 @@
 # NetBeans project files
-nbproject/private/
-nb-configuration.xml
+ParkingSystem/nbproject/private/
+ParkingSystem/nb-configuration.xml
 
 # Generated build output
-build/
-dist/
+ParkingSystem/build/
+ParkingSystem/dist/
 
 # Java compiled files
-*.class
+ParkingSystem/*.class
 
 # IDE-specific files
 .DS_Store
@@ -18,3 +18,4 @@ Thumbs.db
 
 # Temporary or backup files
 *~
+
