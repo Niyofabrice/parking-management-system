@@ -19,3 +19,4 @@ Thumbs.db
 # Temporary or backup files
 *~
 
+/ParkingManagementSystem/build/
