@@ -5,6 +5,8 @@
  */
 package VIEW;
 
+import DAO.UserDao;
+import MODELS.User;
 /**
  *
  * @author Fabrice
@@ -268,9 +270,9 @@ public class RegisterUserPage extends javax.swing.JPanel {
             return;
         }
 
-        DAO.UserDao userDao = new DAO.UserDao();
-        MODELS.User user = new MODELS.User();
-        user.setUsername(username);
+        UserDao userDao = new UserDao();
+        User user = new User();
+        user.setUsername(username.toLowerCase());
         user.setPassword(password);
         user.setRole(role);
         user.setStatus("active");
@@ -281,7 +283,6 @@ public class RegisterUserPage extends javax.swing.JPanel {
             javax.swing.JOptionPane.showMessageDialog(this, 
                 "User registered successfully!");
 
-            // redirect to login
             main.setPage(new LoginUserPage(main));
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, 

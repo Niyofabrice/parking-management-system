@@ -18,9 +18,9 @@ import java.util.List;
  * @author Fabrice
  */
 public class VehicleDao {
-    private String jdbcUrl = "jdbc:postgresql://localhost:5432/parking_db";
+    private String jdbcUrl = "jdbc:postgresql://localhost:5432/parking_management_system_db";
     private String dbUsername = "postgres";
-    private String dbPassword = "your_password";
+    private String dbPassword = "Faundaiton10990";
 
     // INSERT VEHICLE
     public Integer addVehicle(Vehicle vehicle){

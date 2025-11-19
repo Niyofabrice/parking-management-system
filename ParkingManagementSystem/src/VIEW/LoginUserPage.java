@@ -5,6 +5,8 @@
  */
 package VIEW;
 
+import DAO.UserDao;
+import MODELS.User;
 /**
  *
  * @author Fabrice
@@ -239,14 +241,21 @@ public class LoginUserPage extends javax.swing.JPanel {
         // TODO add your handling code here:
         String username = usernameTxtField.getText().trim();
         String password = passwordTxtField.getText().trim();
+        
+        if (username.isEmpty() || password.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "All fields are required", 
+                "Error", 
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        DAO.UserDao userDao = new DAO.UserDao();
-        MODELS.User user = userDao.login(username, password);
+        UserDao userDao = new UserDao();
+        User user = userDao.login(username, password);
 
         if (user != null) {
             javax.swing.JOptionPane.showMessageDialog(this, "Login Successful!");
 
-            // Redirect to Dashboard
             main.setPage(new DashboardPage(main));
 
         } else {

@@ -251,6 +251,11 @@ public class VehicleExitPage extends javax.swing.JPanel {
         backToDashboardBtn.setContentAreaFilled(false);
         backToDashboardBtn.setFocusPainted(false);
         backToDashboardBtn.setOpaque(true);
+        backToDashboardBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backToDashboardBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -316,6 +321,11 @@ public class VehicleExitPage extends javax.swing.JPanel {
     private void processExitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processExitBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_processExitBtnActionPerformed
+
+    private void backToDashboardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backToDashboardBtnActionPerformed
+        // TODO add your handling code here:
+        main.setPage(new DashboardPage(main));
+    }//GEN-LAST:event_backToDashboardBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

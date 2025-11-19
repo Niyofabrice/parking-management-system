@@ -57,6 +57,11 @@ public class VehicleEntryPage extends javax.swing.JPanel {
         backToDashboardBtn.setContentAreaFilled(false);
         backToDashboardBtn.setFocusPainted(false);
         backToDashboardBtn.setOpaque(true);
+        backToDashboardBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backToDashboardBtnActionPerformed(evt);
+            }
+        });
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 220, 220), 2));
@@ -207,6 +212,11 @@ public class VehicleEntryPage extends javax.swing.JPanel {
     private void saveVehicleEntryBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveVehicleEntryBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_saveVehicleEntryBtnActionPerformed
+
+    private void backToDashboardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backToDashboardBtnActionPerformed
+        // TODO add your handling code here:
+        main.setPage(new DashboardPage(main));
+    }//GEN-LAST:event_backToDashboardBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
