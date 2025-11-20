@@ -20,9 +20,8 @@ import java.util.List;
 public class VehicleDao {
     private String jdbcUrl = "jdbc:postgresql://localhost:5432/parking_management_system_db";
     private String dbUsername = "postgres";
-    private String dbPassword = "Faundaiton10990";
+    private String dbPassword = "Faundation10990";
 
-    // INSERT VEHICLE
     public Integer addVehicle(Vehicle vehicle){
         try{
             Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
@@ -43,7 +42,6 @@ public class VehicleDao {
         }
     }
 
-    // FIND VEHICLE BY PLATE NUMBER
     public Vehicle findVehicleByPlate(String plate){
         try{
             Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
@@ -72,7 +70,6 @@ public class VehicleDao {
         }
     }
 
-    // LIST ALL VEHICLES
     public List<Vehicle> getAllVehicles(){
         try{
             Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
@@ -95,6 +92,98 @@ public class VehicleDao {
 
             con.close();
             return list;
+
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    
+    
+    public ResultSet getVehiclesEnteredToday() {
+        try{
+            Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
+            String sql = "SELECT v.plate_number, v.vehicle_type, p.time_in, p.time_out, p.status, p.fee "
+                   + "FROM vehicle v INNER JOIN parking_record p ON v.vehicle_id = p.vehicle_id "
+                   + "WHERE DATE(p.time_in) = CURRENT_DATE";
+            PreparedStatement pst = con.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            con.close();
+            return rs;
+
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public ResultSet getVehiclesExitedToday() {
+         try{
+            Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
+            String sql = "SELECT v.plate_number, v.vehicle_type, p.time_in, p.time_out, p.status, p.fee "
+                   + "FROM vehicle v INNER JOIN parking_record p ON v.vehicle_id = p.vehicle_id "
+                   + "WHERE DATE(p.time_out) = CURRENT_DATE";
+            PreparedStatement pst = con.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            con.close();
+            return rs;
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    
+    public int getVehiclesExitedTodayCount() {
+         try{
+            Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
+            String sql = "SELECT COUNT(*) FROM parking_record WHERE time_out >= CURRENT_DATE AND time_out < CURRENT_DATE + interval '1 day'";
+            PreparedStatement pst = con.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()){
+                int count = rs.getInt(1);
+                return count;
+            }
+            con.close();
+            return 0;
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return 0;
+        }
+    }
+    
+    public int getVehiclesEnteredTodayCount() {
+        try{
+            Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
+            String sql = "SELECT COUNT(*) FROM parking_record WHERE DATE(time_in) = CURRENT_DATE";
+            PreparedStatement pst = con.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()){
+                int count = rs.getInt(1);
+                return count;
+            }
+            con.close();
+            return 0;
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return 0;
+        }
+    }
+    
+    
+    public ResultSet getAllVehiclesRs(){
+        try{
+            Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
+            String sql = "SELECT plate_number, vehicle_type, owner_name " +
+                 "FROM vehicle ORDER BY plate_number";
+            PreparedStatement pst = con.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            con.close();
+            return rs;
 
         }catch(Exception ex){
             ex.printStackTrace();

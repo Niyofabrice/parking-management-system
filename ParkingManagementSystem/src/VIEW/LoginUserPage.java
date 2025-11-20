@@ -15,7 +15,7 @@ public class LoginUserPage extends javax.swing.JPanel {
     private Main main;
 
     /**
-     * Creates new form LoginUserPage2
+     * Creates new form LoginUserPage
      */
     public LoginUserPage(Main main) {
         this.main = main;
@@ -254,13 +254,14 @@ public class LoginUserPage extends javax.swing.JPanel {
         User user = userDao.login(username, password);
 
         if (user != null) {
+            main.setCurrentUser(user);
             javax.swing.JOptionPane.showMessageDialog(this, "Login Successful!");
 
             main.setPage(new DashboardPage(main));
 
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, 
-                "Invalid username or password!",
+                "Invalid username or password",
                 "Error",
                 javax.swing.JOptionPane.ERROR_MESSAGE);
         }

@@ -5,6 +5,12 @@
  */
 package VIEW;
 
+import DAO.ParkingSlotDao;
+import DAO.UserDao;
+import DAO.VehicleDao;
+import MODELS.User;
+import VIEW.Main.ReportType;
+
 /**
  *
  * @author Fabrice
@@ -12,12 +18,42 @@ package VIEW;
 public class DashboardPage extends javax.swing.JPanel {
 
     private Main main;
+    private ParkingSlotDao slotDao = new ParkingSlotDao();
+    private VehicleDao vehicleDao = new VehicleDao();
+    private UserDao userDao = new UserDao();
     /**
      * Creates new form DashboardPage2
      */
     public DashboardPage(Main main) {
         this.main = main;
         initComponents();
+        updateLabels();
+        User activeUser = main.getCurrentUser();
+        
+        if (activeUser != null && activeUser.getRole() != null) {
+            if (!"admin".equalsIgnoreCase(activeUser.getRole())) {
+                viewAllVehiclesPage.setVisible(false);
+            } else {
+                viewAllVehiclesPage.setVisible(true);
+            }
+        }
+    }
+    
+    private void updateLabels() {
+        int totalSlots = slotDao.countSlots();
+        int availableSlots = slotDao.getAvailableSlots().size();
+        int occupiedSlots = slotDao.getAllSlots().size() - slotDao.getAvailableSlots().size();
+        totalSpotsLabel.setText(String.valueOf(totalSlots));
+        availableSpotsLabel.setText(String.valueOf(availableSlots));
+        occupiedSpotsLabel.setText(String.valueOf(occupiedSlots));
+        try {
+            vehicleEnteredTodayLabel.setText(String.valueOf(vehicleDao.getVehiclesEnteredTodayCount()));
+            vehicleExitedTodayLabel.setText(String.valueOf(vehicleDao.getVehiclesExitedTodayCount()));
+            double total = slotDao.getTodayTotalRevenue();
+            todayRevenueLabel.setText(total + " RWF");
+        } catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -34,27 +70,31 @@ public class DashboardPage extends javax.swing.JPanel {
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         availableSpotsLabel = new javax.swing.JLabel();
+        availableSpotsBtn = new javax.swing.JButton();
         viewVehicleExitPage = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         occupiedSpotsLabel = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        occupiedSpotsBtn = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         totalSpotsLabel = new javax.swing.JLabel();
+        viewParkingSlots = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         vehicleExitedTodayLabel = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        vehicleExitedTodayBtn = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         todayRevenueLabel = new javax.swing.JLabel();
+        todayRevenueBtn = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         vehicleEnteredTodayLabel = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        vehicleEnteredTodayBtn = new javax.swing.JButton();
         viewAllVehiclesPage = new javax.swing.JButton();
         viewVehicleEntryPage = new javax.swing.JButton();
+        logoutBtn = new javax.swing.JButton();
 
         setMinimumSize(new java.awt.Dimension(1200, 800));
 
@@ -80,6 +120,20 @@ public class DashboardPage extends javax.swing.JPanel {
         availableSpotsLabel.setMinimumSize(new java.awt.Dimension(40, 40));
         availableSpotsLabel.setPreferredSize(new java.awt.Dimension(40, 40));
 
+        availableSpotsBtn.setBackground(new java.awt.Color(51, 102, 255));
+        availableSpotsBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        availableSpotsBtn.setForeground(new java.awt.Color(255, 255, 255));
+        availableSpotsBtn.setText("View");
+        availableSpotsBtn.setBorderPainted(false);
+        availableSpotsBtn.setContentAreaFilled(false);
+        availableSpotsBtn.setFocusPainted(false);
+        availableSpotsBtn.setOpaque(true);
+        availableSpotsBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                availableSpotsBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -93,6 +147,10 @@ public class DashboardPage extends javax.swing.JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addComponent(availableSpotsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(125, 125, 125))))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(102, 102, 102)
+                .addComponent(availableSpotsBtn)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -101,7 +159,9 @@ public class DashboardPage extends javax.swing.JPanel {
                 .addComponent(jLabel2)
                 .addGap(50, 50, 50)
                 .addComponent(availableSpotsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addComponent(availableSpotsBtn)
+                .addContainerGap())
         );
 
         viewVehicleExitPage.setBackground(new java.awt.Color(51, 102, 255));
@@ -134,14 +194,19 @@ public class DashboardPage extends javax.swing.JPanel {
         occupiedSpotsLabel.setMinimumSize(new java.awt.Dimension(40, 40));
         occupiedSpotsLabel.setPreferredSize(new java.awt.Dimension(40, 40));
 
-        jButton3.setBackground(new java.awt.Color(51, 102, 255));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("View");
-        jButton3.setBorderPainted(false);
-        jButton3.setContentAreaFilled(false);
-        jButton3.setFocusPainted(false);
-        jButton3.setOpaque(true);
+        occupiedSpotsBtn.setBackground(new java.awt.Color(51, 102, 255));
+        occupiedSpotsBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        occupiedSpotsBtn.setForeground(new java.awt.Color(255, 255, 255));
+        occupiedSpotsBtn.setText("View");
+        occupiedSpotsBtn.setBorderPainted(false);
+        occupiedSpotsBtn.setContentAreaFilled(false);
+        occupiedSpotsBtn.setFocusPainted(false);
+        occupiedSpotsBtn.setOpaque(true);
+        occupiedSpotsBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                occupiedSpotsBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -158,7 +223,7 @@ public class DashboardPage extends javax.swing.JPanel {
                         .addComponent(occupiedSpotsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(102, 102, 102)
-                        .addComponent(jButton3)))
+                        .addComponent(occupiedSpotsBtn)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -169,7 +234,7 @@ public class DashboardPage extends javax.swing.JPanel {
                 .addGap(50, 50, 50)
                 .addComponent(occupiedSpotsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton3)
+                .addComponent(occupiedSpotsBtn)
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -188,6 +253,20 @@ public class DashboardPage extends javax.swing.JPanel {
         totalSpotsLabel.setMinimumSize(new java.awt.Dimension(40, 40));
         totalSpotsLabel.setPreferredSize(new java.awt.Dimension(40, 40));
 
+        viewParkingSlots.setBackground(new java.awt.Color(51, 102, 255));
+        viewParkingSlots.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        viewParkingSlots.setForeground(new java.awt.Color(255, 255, 255));
+        viewParkingSlots.setText("View");
+        viewParkingSlots.setBorderPainted(false);
+        viewParkingSlots.setContentAreaFilled(false);
+        viewParkingSlots.setFocusPainted(false);
+        viewParkingSlots.setOpaque(true);
+        viewParkingSlots.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewParkingSlotsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -199,7 +278,10 @@ public class DashboardPage extends javax.swing.JPanel {
                         .addComponent(jLabel6))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(114, 114, 114)
-                        .addComponent(totalSpotsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(totalSpotsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(102, 102, 102)
+                        .addComponent(viewParkingSlots)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
@@ -209,7 +291,9 @@ public class DashboardPage extends javax.swing.JPanel {
                 .addComponent(jLabel6)
                 .addGap(44, 44, 44)
                 .addComponent(totalSpotsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(66, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
+                .addComponent(viewParkingSlots)
+                .addContainerGap())
         );
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
@@ -228,14 +312,19 @@ public class DashboardPage extends javax.swing.JPanel {
         vehicleExitedTodayLabel.setMinimumSize(new java.awt.Dimension(40, 40));
         vehicleExitedTodayLabel.setPreferredSize(new java.awt.Dimension(40, 40));
 
-        jButton2.setBackground(new java.awt.Color(51, 102, 255));
-        jButton2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
-        jButton2.setText("View");
-        jButton2.setBorderPainted(false);
-        jButton2.setContentAreaFilled(false);
-        jButton2.setFocusPainted(false);
-        jButton2.setOpaque(true);
+        vehicleExitedTodayBtn.setBackground(new java.awt.Color(51, 102, 255));
+        vehicleExitedTodayBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        vehicleExitedTodayBtn.setForeground(new java.awt.Color(255, 255, 255));
+        vehicleExitedTodayBtn.setText("View");
+        vehicleExitedTodayBtn.setBorderPainted(false);
+        vehicleExitedTodayBtn.setContentAreaFilled(false);
+        vehicleExitedTodayBtn.setFocusPainted(false);
+        vehicleExitedTodayBtn.setOpaque(true);
+        vehicleExitedTodayBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vehicleExitedTodayBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -251,7 +340,7 @@ public class DashboardPage extends javax.swing.JPanel {
                         .addComponent(vehicleExitedTodayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGap(102, 102, 102)
-                        .addComponent(jButton2)))
+                        .addComponent(vehicleExitedTodayBtn)))
                 .addContainerGap(59, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
@@ -262,7 +351,7 @@ public class DashboardPage extends javax.swing.JPanel {
                 .addGap(45, 45, 45)
                 .addComponent(vehicleExitedTodayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addComponent(vehicleExitedTodayBtn)
                 .addContainerGap())
         );
 
@@ -282,27 +371,47 @@ public class DashboardPage extends javax.swing.JPanel {
         todayRevenueLabel.setMinimumSize(new java.awt.Dimension(40, 40));
         todayRevenueLabel.setPreferredSize(new java.awt.Dimension(40, 40));
 
+        todayRevenueBtn.setBackground(new java.awt.Color(51, 102, 255));
+        todayRevenueBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        todayRevenueBtn.setForeground(new java.awt.Color(255, 255, 255));
+        todayRevenueBtn.setText("View");
+        todayRevenueBtn.setBorderPainted(false);
+        todayRevenueBtn.setContentAreaFilled(false);
+        todayRevenueBtn.setFocusPainted(false);
+        todayRevenueBtn.setOpaque(true);
+        todayRevenueBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                todayRevenueBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addContainerGap(71, Short.MAX_VALUE)
-                .addComponent(jLabel10)
-                .addGap(74, 74, 74))
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(123, 123, 123)
-                .addComponent(todayRevenueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addGap(74, 74, 74))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addComponent(todayRevenueBtn)
+                        .addGap(106, 106, 106))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addComponent(todayRevenueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22))))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel10)
-                .addGap(50, 50, 50)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
                 .addComponent(todayRevenueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(todayRevenueBtn)
+                .addContainerGap())
         );
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
@@ -321,14 +430,19 @@ public class DashboardPage extends javax.swing.JPanel {
         vehicleEnteredTodayLabel.setMinimumSize(new java.awt.Dimension(40, 40));
         vehicleEnteredTodayLabel.setPreferredSize(new java.awt.Dimension(40, 40));
 
-        jButton1.setBackground(new java.awt.Color(51, 102, 255));
-        jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("View");
-        jButton1.setBorderPainted(false);
-        jButton1.setContentAreaFilled(false);
-        jButton1.setFocusPainted(false);
-        jButton1.setOpaque(true);
+        vehicleEnteredTodayBtn.setBackground(new java.awt.Color(51, 102, 255));
+        vehicleEnteredTodayBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        vehicleEnteredTodayBtn.setForeground(new java.awt.Color(255, 255, 255));
+        vehicleEnteredTodayBtn.setText("View");
+        vehicleEnteredTodayBtn.setBorderPainted(false);
+        vehicleEnteredTodayBtn.setContentAreaFilled(false);
+        vehicleEnteredTodayBtn.setFocusPainted(false);
+        vehicleEnteredTodayBtn.setOpaque(true);
+        vehicleEnteredTodayBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vehicleEnteredTodayBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -344,7 +458,7 @@ public class DashboardPage extends javax.swing.JPanel {
                         .addComponent(jLabel12))
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addGap(92, 92, 92)
-                        .addComponent(jButton1)))
+                        .addComponent(vehicleEnteredTodayBtn)))
                 .addContainerGap(58, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
@@ -355,7 +469,7 @@ public class DashboardPage extends javax.swing.JPanel {
                 .addGap(49, 49, 49)
                 .addComponent(vehicleEnteredTodayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addComponent(vehicleEnteredTodayBtn)
                 .addContainerGap())
         );
 
@@ -385,28 +499,37 @@ public class DashboardPage extends javax.swing.JPanel {
             }
         });
 
+        logoutBtn.setText("Logout");
+        logoutBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logoutBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(135, 135, 135)
+                .addGap(100, 100, 100)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 79, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(74, 74, 74)
+                .addGap(75, 75, 75)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(72, Short.MAX_VALUE))
+                .addContainerGap(92, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addGap(240, 240, 240))
+                .addGap(140, 140, 140)
+                .addComponent(logoutBtn)
+                .addGap(21, 21, 21))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(186, 186, 186)
                 .addComponent(viewVehicleEntryPage)
@@ -420,13 +543,15 @@ public class DashboardPage extends javax.swing.JPanel {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(20, 20, 20)
-                .addComponent(jLabel1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(logoutBtn))
                 .addGap(40, 40, 40)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(83, 83, 83)
+                .addGap(80, 80, 80)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -436,7 +561,7 @@ public class DashboardPage extends javax.swing.JPanel {
                     .addComponent(viewAllVehiclesPage, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(viewVehicleExitPage, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(viewVehicleEntryPage, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(104, Short.MAX_VALUE))
+                .addContainerGap(107, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -466,12 +591,55 @@ public class DashboardPage extends javax.swing.JPanel {
         main.setPage(new VehicleEntryPage(main));
     }//GEN-LAST:event_viewVehicleEntryPageActionPerformed
 
+    private void viewParkingSlotsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewParkingSlotsActionPerformed
+        // TODO add your handling code here:
+        main.setPage(new SlotsPage(main));
+    }//GEN-LAST:event_viewParkingSlotsActionPerformed
+
+    private void availableSpotsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_availableSpotsBtnActionPerformed
+        // TODO add your handling code here:
+        main.showReportPage(ReportType.AVAILABLE_SPOTS);
+    }//GEN-LAST:event_availableSpotsBtnActionPerformed
+
+    private void occupiedSpotsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_occupiedSpotsBtnActionPerformed
+        // TODO add your handling code here:
+        main.showReportPage(ReportType.OCCUPIED_SPOTS);
+    }//GEN-LAST:event_occupiedSpotsBtnActionPerformed
+
+    private void vehicleEnteredTodayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vehicleEnteredTodayBtnActionPerformed
+        // TODO add your handling code here:
+        main.showReportPage(ReportType.VEHICLES_ENTERED_TODAY);
+    }//GEN-LAST:event_vehicleEnteredTodayBtnActionPerformed
+
+    private void vehicleExitedTodayBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vehicleExitedTodayBtnActionPerformed
+        // TODO add your handling code here:
+        main.showReportPage(ReportType.VEHICLES_EXITED_TODAY);
+    }//GEN-LAST:event_vehicleExitedTodayBtnActionPerformed
+
+    private void todayRevenueBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_todayRevenueBtnActionPerformed
+        // TODO add your handling code here:
+        main.showReportPage(ReportType.TODAY_REVENUE);
+    }//GEN-LAST:event_todayRevenueBtnActionPerformed
+
+    private void logoutBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutBtnActionPerformed
+        // TODO add your handling code here:
+        int dialogResult = javax.swing.JOptionPane.showConfirmDialog(
+            this, 
+            "Are you sure you want to log out?", 
+            "Confirm Logout", 
+            javax.swing.JOptionPane.YES_NO_OPTION
+        );
+
+        if (dialogResult == javax.swing.JOptionPane.YES_OPTION) {
+            userDao.logoutUser(main);
+            main.setPage(new LoginUserPage(main));
+        }
+    }//GEN-LAST:event_logoutBtnActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton availableSpotsBtn;
     private javax.swing.JLabel availableSpotsLabel;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel12;
@@ -486,12 +654,18 @@ public class DashboardPage extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JButton logoutBtn;
+    private javax.swing.JButton occupiedSpotsBtn;
     private javax.swing.JLabel occupiedSpotsLabel;
+    private javax.swing.JButton todayRevenueBtn;
     private javax.swing.JLabel todayRevenueLabel;
     private javax.swing.JLabel totalSpotsLabel;
+    private javax.swing.JButton vehicleEnteredTodayBtn;
     private javax.swing.JLabel vehicleEnteredTodayLabel;
+    private javax.swing.JButton vehicleExitedTodayBtn;
     private javax.swing.JLabel vehicleExitedTodayLabel;
     private javax.swing.JButton viewAllVehiclesPage;
+    private javax.swing.JButton viewParkingSlots;
     private javax.swing.JButton viewVehicleEntryPage;
     private javax.swing.JButton viewVehicleExitPage;
     // End of variables declaration//GEN-END:variables

@@ -5,6 +5,13 @@
  */
 package VIEW;
 
+import DAO.ParkingRecordDao;
+import DAO.ParkingSlotDao;
+import DAO.VehicleDao;
+import MODELS.ParkingRecord;
+import MODELS.ParkingSlot;
+import MODELS.Vehicle;
+import javax.swing.JOptionPane;
 /**
  *
  * @author Fabrice
@@ -12,6 +19,14 @@ package VIEW;
 public class VehicleExitPage extends javax.swing.JPanel {
 
     private Main main;
+    private VehicleDao vehicleDao = new VehicleDao();
+    private ParkingSlotDao slotDao = new ParkingSlotDao();
+    private ParkingRecordDao recordDao = new ParkingRecordDao();
+    
+    private ParkingRecord currentRecord = null;
+    private Vehicle currentVehicle = null;
+    private ParkingSlot currentSlot = null;
+
     /**
      * Creates new form VehicleExitPage2
      */
@@ -316,10 +331,105 @@ public class VehicleExitPage extends javax.swing.JPanel {
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
         // TODO add your handling code here:
+        String plate = searchVehicleNumberTxtField.getText().trim();
+
+        if (plate.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Enter a vehicle number", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        currentVehicle = vehicleDao.findVehicleByPlate(plate);
+
+        if (currentVehicle == null) {
+            JOptionPane.showMessageDialog(this, "Vehicle not found", "Not Found", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        currentRecord = recordDao.findActiveRecordByVehicle(currentVehicle.getVehicleId());
+
+        if (currentRecord == null) {
+            JOptionPane.showMessageDialog(this, "This vehicle is not currently parked", "Not parked", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        currentSlot = slotDao.findSlotById(currentRecord.getSlotId());
+
+        vehicleNumberLabel.setText(currentVehicle.getPlateNumber());
+        vehicleTypeLabel.setText(currentVehicle.getVehicleType());
+        entryTimeLabel.setText(currentRecord.getTimeIn().toString());
+
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.Duration duration = java.time.Duration.between(currentRecord.getTimeIn(), now);
+
+        long minutes = duration.toMinutes();
+        long hours = minutes / 60;
+        long remainingMin = minutes % 60;
+
+        durationLabel.setText(hours + "h " + remainingMin + "m");
+
+        double rate = 0;
+
+        switch (currentVehicle.getVehicleType().toLowerCase()) {
+            case "car":
+                rate = 1000;
+                break;
+            case "motorcycle":
+                rate = 500;
+                break;
+            case "truck":
+                rate = 2000;
+                break;
+            case "bus":
+                rate = 2500;
+                break;
+        }
+
+        hourlyRateLabel.setText(rate + " RWF");
+
+        double totalFee = (hours + 1) * rate;
+        totalFeeLabel.setText(totalFee + " RWF");
+
+        currentRecord.setFee(totalFee);
+
     }//GEN-LAST:event_searchBtnActionPerformed
 
     private void processExitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processExitBtnActionPerformed
         // TODO add your handling code here:
+        if (currentRecord == null) {
+            JOptionPane.showMessageDialog(this, "Search for a vehicle first", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        currentRecord.setTimeOut(java.time.LocalDateTime.now());
+        currentRecord.setStatus("completed");
+
+        int updated = recordDao.completeExit(currentRecord);
+
+        if (updated <= 0) {
+            JOptionPane.showMessageDialog(this, "Failed to process exit", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        slotDao.updateOccupation(currentSlot.getSlotId(), false);
+
+        JOptionPane.showMessageDialog(this,
+                "Vehicle exit processed!\nTotal Fee: " + totalFeeLabel.getText(),
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        vehicleNumberLabel.setText("");
+        vehicleTypeLabel.setText("");
+        entryTimeLabel.setText("");
+        durationLabel.setText("");
+        hourlyRateLabel.setText("");
+        totalFeeLabel.setText("");
+        searchVehicleNumberTxtField.setText("");
+
+        currentRecord = null;
+        currentVehicle = null;
+        currentSlot = null;
+        main.setPage(new DashboardPage(main));
+
     }//GEN-LAST:event_processExitBtnActionPerformed
 
     private void backToDashboardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backToDashboardBtnActionPerformed

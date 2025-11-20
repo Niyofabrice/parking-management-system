@@ -5,6 +5,7 @@
  */
 package VIEW;
 
+import MODELS.User;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
@@ -13,6 +14,14 @@ import javax.swing.JPanel;
  * @author Fabrice
  */
 public final class Main extends javax.swing.JFrame {
+    
+    public enum ReportType {
+        AVAILABLE_SPOTS,
+        OCCUPIED_SPOTS,
+        VEHICLES_ENTERED_TODAY,
+        VEHICLES_EXITED_TODAY,
+        TODAY_REVENUE
+    }
 
     private JPanel currentPanel;
     /**
@@ -32,6 +41,20 @@ public final class Main extends javax.swing.JFrame {
         add(currentPanel, BorderLayout.CENTER);
         revalidate();
         repaint();
+    }
+    
+    public void showReportPage(ReportType type) {
+        setPage(new ReportTablePage(this, type));
+    }
+    
+    private User currentUser;
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
     }
 
     /**

@@ -6,6 +6,7 @@
 package DAO;
 
 import MODELS.User;
+import VIEW.Main;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -45,7 +46,7 @@ public class UserDao {
     public User login(String username, String password){
         try{
             Connection con = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword);
-            String sql = "SELECT * FROM users WHERE username=? AND password=? AND status='active'";
+            String sql = "SELECT * FROM users WHERE LOWER(username)=LOWER(?) AND password=? AND status='active'";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setString(1, username);
             pst.setString(2, password);
@@ -97,6 +98,12 @@ public class UserDao {
         }catch(Exception ex){
             ex.printStackTrace();
             return null;
+        }
+    }
+    
+    public void logoutUser(Main main) {
+        if (main != null) {
+            main.setCurrentUser(null);
         }
     }
 }

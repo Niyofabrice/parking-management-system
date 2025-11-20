@@ -3,7 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/VIEW/RegisterUserPage.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/VIEW/SlotsPage.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/DAO/ParkingSlotDao.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/VIEW/VehicleOverViewPage.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/VIEW/VehicleEntryPage.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/VIEW/VehicleExitPage.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/MODELS/ParkingSlot.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/VIEW/Main.java</file>
+            <file>file:/C:/Users/Fabrice/Documents/parking-management-system/ParkingManagementSystem/src/VIEW/DashboardPage.java</file>
         </group>
     </open-files>
 </project-private>

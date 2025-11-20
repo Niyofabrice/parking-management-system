@@ -15,7 +15,7 @@ public class RegisterUserPage extends javax.swing.JPanel {
 
     private Main main;
     /**
-     * Creates new form RegisterUserPage2
+     * Creates new form RegisterUserPage
      */
     public RegisterUserPage(Main main) {
         this.main = main;
@@ -281,12 +281,12 @@ public class RegisterUserPage extends javax.swing.JPanel {
 
         if (result > 0) {
             javax.swing.JOptionPane.showMessageDialog(this, 
-                "User registered successfully!");
+                "User registered successfully");
 
             main.setPage(new LoginUserPage(main));
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, 
-                "Registration failed!", 
+                "Registration failed", 
                 "Error", 
                 javax.swing.JOptionPane.ERROR_MESSAGE);
         }

@@ -5,6 +5,13 @@
  */
 package VIEW;
 
+import DAO.ParkingRecordDao;
+import DAO.ParkingSlotDao;
+import DAO.VehicleDao;
+import MODELS.ParkingRecord;
+import MODELS.ParkingSlot;
+import MODELS.Vehicle;
+import javax.swing.JOptionPane;
 /**
  *
  * @author Fabrice
@@ -12,13 +19,23 @@ package VIEW;
 public class VehicleEntryPage extends javax.swing.JPanel {
 
     private Main main;
+    private VehicleDao vehicleDao = new VehicleDao();
+    private ParkingSlotDao slotDao = new ParkingSlotDao();
+    private ParkingRecordDao recordDao = new ParkingRecordDao();
     /**
-     * Creates new form VehicleEntryPage2
+     * Creates new form VehicleEntryPage
      */
     public VehicleEntryPage(Main main) {
         this.main = main;
         initComponents();
+        entryTimeLabel.setText(String.valueOf(java.time.LocalDateTime.now()));
     }
+    
+    public boolean isValidPlateNumber(String plate) {
+        String regex = "^R[A-Z]{2}[0-9]{3}[A-Z]$";
+        return plate.matches(regex);
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -68,7 +85,7 @@ public class VehicleEntryPage extends javax.swing.JPanel {
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(108, 117, 125));
-        jLabel3.setText("Vehicle Number:");
+        jLabel3.setText("Plate Number:");
 
         vehicleNumberTxtField.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         vehicleNumberTxtField.setForeground(new java.awt.Color(33, 37, 41));
@@ -178,7 +195,7 @@ public class VehicleEntryPage extends javax.swing.JPanel {
                 .addComponent(jLabel2)
                 .addGap(470, 470, 470))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(264, Short.MAX_VALUE)
+                .addContainerGap(281, Short.MAX_VALUE)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(246, 246, 246))
         );
@@ -211,6 +228,85 @@ public class VehicleEntryPage extends javax.swing.JPanel {
 
     private void saveVehicleEntryBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveVehicleEntryBtnActionPerformed
         // TODO add your handling code here:
+        String plateNumber = vehicleNumberTxtField.getText().trim();
+        String vehicleType = vehicleTypeComboBox.getSelectedItem().toString();
+        String ownerName = ownerNameTxtField.getText().trim();
+
+        if (plateNumber.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vehicle number required", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!isValidPlateNumber(plateNumber.replaceAll(" ", ""))) {
+            JOptionPane.showMessageDialog(this,
+                "Invalid plate number Format must be: RAA000X",
+                "Validation Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        ParkingSlot freeSlot = slotDao.findFreeSlotByType(vehicleType);
+        if (freeSlot == null) {
+            JOptionPane.showMessageDialog(this,
+                "No available " + vehicleType + " slots",
+                "Slot Unavailable",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Vehicle vehicle = vehicleDao.findVehicleByPlate(plateNumber);
+
+        if (vehicle != null) {
+            ParkingRecord active = recordDao.findActiveRecordByVehicle(vehicle.getVehicleId());
+
+            if (active != null) {
+                JOptionPane.showMessageDialog(this,
+                        "Vehicle is already parked in Slot: " + active.getSlotId(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+        } else {
+            vehicle = new Vehicle();
+            vehicle.setPlateNumber(plateNumber);
+            vehicle.setVehicleType(vehicleType);
+            vehicle.setOwnerName(ownerName);
+            int newVehicleId = vehicleDao.addVehicle(vehicle);
+
+            if (newVehicleId <= 0) {
+                JOptionPane.showMessageDialog(this, "Failed to register vehicle", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            vehicle.setVehicleId(newVehicleId);
+        }
+
+        ParkingRecord record = new ParkingRecord();
+        record.setVehicleId(vehicle.getVehicleId());
+        record.setSlotId(freeSlot.getSlotId());
+
+        record.setTimeIn(java.time.LocalDateTime.now()); 
+
+        int saved = recordDao.createEntry(record);
+
+        if (saved <= 0) {
+            JOptionPane.showMessageDialog(this, "Failed to save parking record", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        slotDao.updateOccupation(freeSlot.getSlotId(), true);
+
+        JOptionPane.showMessageDialog(this,
+                "Vehicle parked successfully\nAssigned Slot: " + freeSlot.getSlotNumber(),
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        vehicleNumberTxtField.setText("");
+        ownerNameTxtField.setText("");
+        vehicleTypeComboBox.setSelectedIndex(0);
+        entryTimeLabel.setText(String.valueOf(java.time.LocalDateTime.now()));
+        main.setPage(new DashboardPage(main));
     }//GEN-LAST:event_saveVehicleEntryBtnActionPerformed
 
     private void backToDashboardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backToDashboardBtnActionPerformed
